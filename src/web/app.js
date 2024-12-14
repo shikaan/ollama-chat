@@ -6,9 +6,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const $feed = document.getElementById('feed');
   const $prompt = document.getElementById('prompt');
   const $submit = $chat.querySelector('[type="submit"]');
+  const $models = document.getElementById('models');
 
   const state = {
-    model: 'qwen2.5-coder:14b',
+    model: null,
+    models: [],
     messages: []
   }
 
@@ -32,7 +34,7 @@ window.addEventListener('DOMContentLoaded', () => {
       $message.classList.add("message");
       $message.classList.add(message.role == "user" ? "message__user" : "message__assistant")
       const $title = document.createElement('h4');
-      $title.innerText = message.role == "user" ? "You" : "🤖 Assistant";
+      $title.innerHTML = message.role == "user" ? "You" : `🤖 Assistant <i>(${message.model})</i>`;
       const $body = document.createElement('p')
       $body.innerHTML = marked.parse(message.content, { gfm: false });
       $message.appendChild($title)
@@ -85,8 +87,34 @@ window.addEventListener('DOMContentLoaded', () => {
     })
 
     const body = await res.json();
-    state.messages.push(body.message)
+    state.messages.push({ ...body.message, model: state.model })
     setLoading(false);
     drawFeed();
   }
+
+  function drawModelPicker() {
+    $models.innerHTML = '';
+
+    for (const model of state.models) {
+      const $opt = document.createElement('option');
+      $opt.innerText = model;
+      $opt.value = model;
+      $models.appendChild($opt);
+    }
+    $models.addEventListener('change', (e) => {
+      state.model = e.target.value;
+    })
+  }
+
+  async function getModels() {
+    setLoading(true)
+    const res = await fetch(LOCAL_OLLAMA + `/api/tags`);
+    const body = await res.json();
+    state.models = body.models.map(m => m.name);
+    state.model = state.model ?? state.models[0];
+    drawModelPicker();
+    setLoading(false)
+  }
+
+  getModels();
 })
