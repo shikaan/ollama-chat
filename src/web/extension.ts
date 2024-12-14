@@ -64,9 +64,10 @@ class OllamaChatProvider implements vscode.WebviewViewProvider {
 			</head>
 			<body>
 				<section id="feed">
-					<h3>Hello human!</h3>
-					<p>I am your privacy-friendly assistant ready to answer all your coding questions!</p>
-					<p>I rely on Ollama and therefore all the data of our exchanges will stay private. How cool is that?</p>
+					<h3>Hello human! 🤖</h3>
+					<p>I am your privacy-friendly assistant ready to answer all your coding questions! 🙋</p>
+					<p>I rely on Ollama and therefore all the data of our exchanges will stay private 🔐</p>
+					<p>How cool is that?</p>
 				</section>
 				
 				<form id="chat">
