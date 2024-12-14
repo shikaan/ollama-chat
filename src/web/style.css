@@ -1,0 +1,35 @@
+[hidden] {
+  display: none;
+}
+
+:root {
+  --half-container-padding: calc(var(--container-paddding)/2);
+}
+
+#feed {
+  padding: var(--container-paddding) var(--half-container-padding);
+
+  pre {
+    display: grid;
+    overflow-x: auto;
+
+    code {
+      padding: var(--half-container-padding) var(--container-paddding); 
+    }
+  }
+}
+
+.message {
+  padding: var(--half-container-padding) 0px;
+}
+
+#prompt {
+  resize: vertical;
+  min-height: 45px;
+  padding: var(--half-container-padding);
+
+  &[disabled] {
+    color: var(--vscode-disabledForeground);
+    background: transparent;
+  }
+}
