@@ -1,7 +1,7 @@
 <h1 align="center">Ollama Chat</h1>
 
 <p align="center">
-  VSCode Chat extensions for yout local Ollama
+  VSCode Chat extensions for your local Ollama
 </p>
 
 <p align="center">
