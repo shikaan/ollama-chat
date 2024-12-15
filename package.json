@@ -1,18 +1,15 @@
 {
-	"name": "helloworld-web-sample",
-	"displayName": "helloworld-web-sample",
-	"description": "HelloWorld example for VS Code in the browser",
+	"name": "ollama-chat",
+	"displayName": "Ollama Chat",
+	"description": "VSCode frontend for locally running Ollama",
 	"version": "0.0.1",
-	"publisher": "vscode-samples",
+	"publisher": "shikaan",
 	"private": true,
 	"license": "MIT",
-	"repository": "https://github.com/microsoft/vscode-extension-samples/helloworld-web-sample",
 	"engines": {
 		"vscode": "^1.74.0"
 	},
-	"categories": [
-		"Other"
-	],
+	"categories": ["Other"],
 	"activationEvents": [],
 	"browser": "./dist/web/extension.js",
 	"contributes": {
@@ -32,7 +29,8 @@
 		"compile-web": "webpack",
 		"watch-web": "webpack --watch",
 		"package-web": "webpack --mode production --devtool hidden-source-map",
-		"lint": "eslint"
+		"lint": "eslint",
+		"package": "vsce pack"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.13.0",
@@ -40,6 +38,7 @@
 		"@types/mocha": "^9.0.0",
 		"@types/vscode": "^1.73.0",
 		"@types/webpack-env": "^1.16.2",
+		"@vscode/vsce": "^3.2.1",
 		"assert": "^2.0.0",
 		"eslint": "^9.13.0",
 		"ts-loader": "^9.2.5",

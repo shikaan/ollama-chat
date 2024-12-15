@@ -1,45 +1,33 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	const provider = new OllamaChatProvider(context.extensionUri);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(OllamaChatProvider.viewType, provider));
-
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {
-	// Noop
-}
+export function deactivate() {}
 
 class OllamaChatProvider implements vscode.WebviewViewProvider {
 
 	public static readonly viewType = 'ollama-chat.chat';
 
-	private _view?: vscode.WebviewView;
+	private view?: vscode.WebviewView;
 
 	constructor(
-		private readonly _extensionUri: vscode.Uri,
+		private readonly extensionUri: vscode.Uri,
 	) { }
 
 	public resolveWebviewView(
 		webviewView: vscode.WebviewView,
-		_context: vscode.WebviewViewResolveContext,
-		_token: vscode.CancellationToken,
 	) {
-		this._view = webviewView;
+		this.view = webviewView;
 
 		webviewView.webview.options = {
-			// Allow scripts in the webview
 			enableScripts: true,
-
 			localResourceRoots: [
-				this._extensionUri
+				this.extensionUri
 			]
 		};
 
@@ -47,10 +35,10 @@ class OllamaChatProvider implements vscode.WebviewViewProvider {
 	}
 
 	private makeHTML(webview: vscode.Webview) {
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src/web', 'app.js'));
-		const markedUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src/web', 'marked.js'));
-		const resetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src/web', 'reset.css'));
-		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src/web', 'style.css'));
+		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src/web', 'app.js'));
+		const markedUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src/web', 'marked.js'));
+		const resetUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src/web', 'reset.css'));
+		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src/web', 'style.css'));
 
 		return `<!DOCTYPE html>
 			<html lang="en">
