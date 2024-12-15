@@ -1,26 +1,27 @@
-# Hello World Sample
+Ollama Chat
+---
 
-This is a Hello World Web Extension example that shows you how to write a extension that runs in VS Code Web (alone)
+Integrate a locally running Ollama as a copilot. This extension provides a 
+user-friendly chat interface, allowing you to interact with Ollama directly 
+within VSCode for coding assistance.
 
-Guide for this sample: https://code.visualstudio.com/api/extension-guides/web-extensions.
+## Features
+- **Local Ollama Integration**: Utilizes your locally installed Ollama instance for real-time code suggestions and assistance.
+- **Chat Interface**: A dedicated chat pane within VSCode where you can communicate with Ollama and receive responses seamlessly.
 
+## Getting Started
+1. **Install the Extension**:
+   - Open VSCode.
+   - Navigate to the Extensions view (`Ctrl+Shift+X`).
+   - Search for "Ollama Chat".
+   - Click on "Install".
 
-## VS Code API
+2. **Setup Local Ollama**:
+   - Ensure that you have Ollama installed and running locally on your machine ([link](https://ollama.com)).
+   - Make sure your Ollama server runs at `http://127.0.0.1:11434`
 
-### `vscode` module
+3. **Using the Extension**:
+   - Open the Command Palette and look for `Focus on Ollama Chat view`
 
-- [`commands.registerCommand`](https://code.visualstudio.com/api/references/vscode-api#commands.registerCommand)
-- [`window.showInformationMessage`](https://code.visualstudio.com/api/references/vscode-api#window.showInformationMessage)
-
-### Contribution Points
-
-- [`browser`](https://code.visualstudio.com/api/references/extension-manifest)
-
-- [`contributes.commands`](https://code.visualstudio.com/api/references/contribution-points#contributes.commands)
-
-## Running the Sample
-
-- Run `npm install` in terminal to install dependencies
-- Run the `Run Web Extension` target in the Debug View. This will:
-	- Start a task `npm: watch` to compile the code
-	- Run the extension in a new VS Code window that contains a web extension host
+## Support and Feedback
+For any issues or suggestions, please [open an issue](https://github.com/shikaan/ollama-chat/issues).
