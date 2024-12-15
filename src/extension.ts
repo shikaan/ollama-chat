@@ -5,6 +5,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(OllamaChatProvider.viewType, provider));
+	console.log('activated');
 }
 
 export function deactivate() {}
@@ -35,10 +36,10 @@ class OllamaChatProvider implements vscode.WebviewViewProvider {
 	}
 
 	private makeHTML(webview: vscode.Webview) {
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src/web', 'app.js'));
-		const markedUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src/web', 'marked.js'));
-		const resetUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src/web', 'reset.css'));
-		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src/web', 'style.css'));
+		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'app.js'));
+		const markedUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'marked.js'));
+		const resetUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'reset.css'));
+		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'style.css'));
 
 		return `<!DOCTYPE html>
 			<html lang="en">

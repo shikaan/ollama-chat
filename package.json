@@ -9,9 +9,11 @@
 	"engines": {
 		"vscode": "^1.74.0"
 	},
-	"categories": ["Other"],
+	"categories": [
+		"Other"
+	],
 	"activationEvents": [],
-	"browser": "./dist/web/extension.js",
+	"browser": "./dist/extension.js",
 	"contributes": {
 		"views": {
 			"explorer": [
@@ -24,27 +26,13 @@
 		}
 	},
 	"scripts": {
-		"pretest": "npm run compile-web",
-		"vscode:prepublish": "npm run package-web",
-		"compile-web": "webpack",
-		"watch-web": "webpack --watch",
-		"package-web": "webpack --mode production --devtool hidden-source-map",
-		"lint": "eslint",
+		"vscode:prepublish": "npm run build",
+		"build": "esbuild --bundle ./src/extension.ts --outdir=dist --external:vscode --minify --platform=node",
 		"package": "vsce pack"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.13.0",
-		"@stylistic/eslint-plugin": "^2.9.0",
-		"@types/mocha": "^9.0.0",
 		"@types/vscode": "^1.73.0",
-		"@types/webpack-env": "^1.16.2",
 		"@vscode/vsce": "^3.2.1",
-		"assert": "^2.0.0",
-		"eslint": "^9.13.0",
-		"ts-loader": "^9.2.5",
-		"typescript": "^5.7.2",
-		"typescript-eslint": "^8.16.0",
-		"webpack": "^5.52.1",
-		"webpack-cli": "^4.8.0"
+		"esbuild": "^0.24.0"
 	}
 }
