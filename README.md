@@ -1,5 +1,13 @@
-Ollama Chat
----
+<h1 align="center">Ollama Chat</h1>
+
+<p align="center">
+  VSCode Chat extensions for yout local Ollama
+</p>
+
+<p align="center">
+  <img width="447" alt="image" src="https://github.com/user-attachments/assets/269efdf8-700c-4fdb-8fe4-82c4dbf343da" />
+</p>
+
 
 Integrate a locally running Ollama as a copilot. This extension provides a 
 user-friendly chat interface, allowing you to interact with Ollama directly 
