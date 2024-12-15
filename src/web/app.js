@@ -1,21 +1,31 @@
+const LOCAL_OLLAMA = 'http://127.0.0.1:11434';
+const HISTORY_LENGTH = 100;
+// prevent overdrawing while streaming the content
+const throttledDrawFeed = throttle(drawFeed, 120); 
+
+const state = {
+  model: null,
+  models: [],
+  messages: []
+}
+
+const $body = document.body;
+let $chat;
+let $feed;
+let $prompt;
+let $submit;
+let $models;
+
 window.addEventListener('DOMContentLoaded', () => {
+  $chat = document.getElementById('chat');
+  $feed = document.getElementById('feed');
+  $prompt = document.getElementById('prompt');
+  $submit = $chat.querySelector('[type="submit"]');
+  $models = document.getElementById('models');
 
-  const LOCAL_OLLAMA = 'http://127.0.0.1:11434';
-
-  const $chat = document.getElementById('chat');
-  const $feed = document.getElementById('feed');
-  const $prompt = document.getElementById('prompt');
-  const $submit = $chat.querySelector('[type="submit"]');
-  const $models = document.getElementById('models');
-
-  const state = {
-    model: null,
-    models: [],
-    messages: []
-  }
-
-  document.body.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && event.metaKey) {
+  // Submit with Ctrl/Cmd+Enter
+  $body.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
       void submit();
     }
@@ -26,95 +36,137 @@ window.addEventListener('DOMContentLoaded', () => {
     await submit();
   })
 
-  function drawFeed() {
-    $feed.innerHTML = '';
+  $models.addEventListener('change', (e) => {
+    state.model = e.target.value;
+  })
 
-    for (const message of state.messages) {
-      const $message = document.createElement('div');
-      $message.classList.add("message");
-      $message.classList.add(message.role == "user" ? "message__user" : "message__assistant")
-      const $title = document.createElement('h4');
-      $title.innerHTML = message.role == "user" ? "You" : `🤖 Assistant <i>(${message.model})</i>`;
-      const $body = document.createElement('p')
-      $body.innerHTML = marked.parse(message.content, { gfm: false });
-      $message.appendChild($title)
-      $message.appendChild($body);
-      $feed.appendChild($message)
-    }
-  }
+  getModels();
+})
 
-  function clearPrompt() {
-    $prompt.value = '';
-  }
-
-  function setLoading(value = true) {
-    if (value) {
-      $prompt.setAttribute('disabled', true)
-      $prompt.value = 'Loading...'
-      $submit.setAttribute('disabled', true)
+// Let a function run at most once every `limit` ms
+function throttle(func, limit) {
+  let lastFunc;
+  let lastRan;
+  return function () {
+    const context = this;
+    const args = arguments;
+    if (!lastRan) {
+      func.apply(context, args);
+      lastRan = Date.now();
     } else {
-      $prompt.removeAttribute('disabled')
-      $submit.removeAttribute('disabled')
-      $prompt.value = ''
-      $prompt.focus();
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(function () {
+        if ((Date.now() - lastRan) >= limit) {
+          // Only execute the function if enough time has passed since it was last run
+          func.apply(context, args);
+          lastRan = Date.now();
+        }
+      }, limit - (Date.now() - lastRan));
     }
+  };
+}
+
+// Draws the chat feed reading from the state
+function drawFeed() {
+  $feed.innerHTML = '';
+
+  for (const message of state.messages) {
+    const $message = document.createElement('div');
+    $message.classList.add("message");
+    $message.classList.add(message.role == "user" ? "message__user" : "message__assistant")
+    const $title = document.createElement('h4');
+    $title.innerHTML = message.role == "user" ? "You" : `🤖 Assistant <i>(${message.model})</i>`;
+    const $body = document.createElement('p')
+    $body.innerHTML = marked.parse(message.content, { gfm: false });
+    $message.appendChild($title)
+    $message.appendChild($body);
+    $feed.appendChild($message)
+  }
+}
+
+// Clears the chatbox
+function clearPrompt() {
+  $prompt.value = '';
+}
+
+// Starts/stops the loading state
+function setLoading(value = true) {
+  if (value) {
+    $prompt.setAttribute('disabled', true)
+    $prompt.value = 'Loading...'
+    $submit.setAttribute('disabled', true)
+  } else {
+    $prompt.removeAttribute('disabled')
+    $submit.removeAttribute('disabled')
+    $prompt.value = ''
+    $prompt.focus();
+  }
+}
+
+// Calls local Ollama and submits the message currently in the chatbox
+async function submit() {
+  const data = new FormData($chat);
+
+  const message = {
+    role: "user",
+    content: data.get('prompt')
   }
 
-  async function submit() {
-    const data = new FormData($chat);
+  state.messages.push(message);
+  if (state.messages.length > HISTORY_LENGTH) {
+    state.messages.shift()
+  }
 
-    const message = {
-      role: "user",
-      content: data.get('prompt')
-    }
+  drawFeed();
+  clearPrompt();
+  setLoading(true);
 
-    state.messages.push(message);
-    if (state.messages.length > 100) {
-      state.messages.shift()
-    }
-
-    drawFeed();
-    clearPrompt();
-    setLoading(true);
-
+  try {
     const res = await fetch(LOCAL_OLLAMA + `/api/chat`, {
       method: 'POST',
       body: JSON.stringify({
         model: state.model,
         messages: state.messages,
-        stream: false
+        stream: true
       })
     })
 
-    const body = await res.json();
-    state.messages.push({ ...body.message, model: state.model })
-    setLoading(false);
-    drawFeed();
-  }
+    const reader = res.body.getReader();
+    const responseMessage = { role: 'assistant', content: '', model: state.model }
+    state.messages.push(responseMessage)
 
-  function drawModelPicker() {
-    $models.innerHTML = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    for (const model of state.models) {
-      const $opt = document.createElement('option');
-      $opt.innerText = model;
-      $opt.value = model;
-      $models.appendChild($opt);
+      const chunk = JSON.parse(new TextDecoder('utf-8').decode(value));
+      responseMessage.content += chunk.message.content;
+      throttledDrawFeed();
     }
-    $models.addEventListener('change', (e) => {
-      state.model = e.target.value;
-    })
+  } finally {
+    setLoading(false);
   }
+}
 
-  async function getModels() {
-    setLoading(true)
-    const res = await fetch(LOCAL_OLLAMA + `/api/tags`);
-    const body = await res.json();
-    state.models = body.models.map(m => m.name);
-    state.model = state.model ?? state.models[0];
-    drawModelPicker();
-    setLoading(false)
+// Draws the model picker with models from the state
+function drawModelPicker() {
+  $models.innerHTML = '';
+
+  for (const model of state.models) {
+    const $opt = document.createElement('option');
+    $opt.innerText = model;
+    $opt.value = model;
+    $models.appendChild($opt);
   }
+}
 
-  getModels();
-})
+// Retrieves a list of locally isntalled models and updates the state
+async function getModels() {
+  setLoading(true)
+  const res = await fetch(LOCAL_OLLAMA + `/api/tags`);
+  const body = await res.json();
+  state.models = body.models.map(m => m.name);
+  state.model = state.model ?? state.models[0];
+  drawModelPicker();
+  setLoading(false)
+}
